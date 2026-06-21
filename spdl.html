@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Spotify Downloader</title>
+
+<style>
+body{
+    margin:0;
+    font-family:system-ui, sans-serif;
+    background: radial-gradient(circle at top, #1db95433, #121212);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.container{
+    width:380px;
+    background:#181818;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+h2{
+    text-align:center;
+    margin-bottom:15px;
+    color:#1db954;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    outline:none;
+    background:#282828;
+    color:white;
+}
+
+button{
+    margin-top:10px;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#1db954;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+button:hover{
+    background:#17a74a;
+}
+
+.card{
+    margin-top:20px;
+    background:#202020;
+    padding:15px;
+    border-radius:12px;
+    text-align:center;
+    animation:fade 0.3s ease-in-out;
+}
+
+.card img{
+    width:100%;
+    border-radius:12px;
+    margin-bottom:10px;
+}
+
+.card h3{
+    margin:5px 0;
+}
+
+.card p{
+    margin:0;
+    color:#aaa;
+}
+
+.download{
+    display:inline-block;
+    margin-top:12px;
+    padding:10px 15px;
+    background:#1db954;
+    color:white;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.loading{
+    text-align:center;
+    margin-top:15px;
+    color:#aaa;
+}
+
+.spinner{
+    width:20px;
+    height:20px;
+    border:3px solid #333;
+    border-top:3px solid #1db954;
+    border-radius:50%;
+    margin:10px auto;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg);}
+}
+
+@keyframes fade{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Spotify Downloader</h2>
+
+    <input type="text" id="url" placeholder="Masukkan link Spotify">
+    <button onclick="downloadSong()">Cari Lagu</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+async function downloadSong() {
+    const url = document.getElementById('url').value;
+    const result = document.getElementById('result');
+
+    if(!url){
+        result.innerHTML = "<p class='loading'>Masukkan link dulu</p>";
+        return;
+    }
+
+    result.innerHTML = `
+        <div class="loading">
+            <div class="spinner"></div>
+            Mengambil data...
+        </div>
+    `;
+
+    try {
+        const res = await fetch(
+            `https://firefly.maiku.my.id/api/musicfab?apikey=OurinNextGen&url=${encodeURIComponent(url)}`
+        );
+
+        const data = await res.json();
+
+        if (!data.status) {
+            result.innerHTML = "<p class='loading'>Gagal mengambil lagu</p>";
+            return;
+        }
+
+        const song = data.data;
+
+        result.innerHTML = `
+            <div class="card">
+                <img src="${song.thumb}" alt="cover">
+                <h3>${song.title}</h3>
+                <p>${song.artist}</p>
+                <a class="download" href="${song.dl}" target="_blank">Unduh MP3</a>
+            </div>
+        `;
+    } catch (e) {
+        result.innerHTML = "<p class='loading'>Terjadi kesalahan</p>";
+    }
+}
+</script>
+
+</body>
+</html>
